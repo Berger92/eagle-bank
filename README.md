@@ -14,3 +14,8 @@ Install dependencies
 ```
 yarn install
 ```
+
+Start the dev server
+```
+yarn start:dev
+```
