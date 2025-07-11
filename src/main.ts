@@ -1,5 +1,5 @@
 import { NestFactory } from "@nestjs/core";
-import type { NestExpressApplication } from "@nestjs/platform-express";
+import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { VersioningType } from "@nestjs/common";
 import { AppModule } from "./app.module";
@@ -16,9 +16,15 @@ const bootstrap = async () => {
     .setTitle("Eagle Bank API")
     .setDescription("The Eagle Bank API description")
     .setVersion("1.0")
+    .addBearerAuth()
     .build();
   const documentFactory = () => SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup("api", app, documentFactory);
+
+  SwaggerModule.setup("api", app, documentFactory, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
 
   const port = process.env.PORT || 3000;
   await app.listen(port);
