@@ -17,13 +17,10 @@ export class UserService {
     });
   }
 
-  async findByUsernameAndPassword(username: string, password: string): Promise<User | null> {
-    const hashedPassword = await this.passwordService.hash(password);
-
+  async findByUsername(username: string): Promise<User | null> {
     return this.prisma.user.findFirst({
       where: {
         username,
-        password: hashedPassword,
       },
     });
   }

@@ -22,7 +22,7 @@ enum AccountType {
 
 model User {
   id           String   @id @default(uuid())
-  externalId   String   @unique @db.VarChar(32) // e.g., usr-ab123
+  externalId   String   @unique // e.g., usr-ab123
   name         String
   username     String   @unique
   password     String
@@ -57,7 +57,7 @@ model BankAccount {
 
 model Transaction {
   id          String   @id @default(uuid())
-  externalId  String   @unique @db.VarChar(32) // e.g., tan-xyz123
+  externalId  String   @unique // e.g., tan-xyz123
   amount      Decimal  @db.Decimal(10, 2)
   currency    Currency
   type        TransactionType

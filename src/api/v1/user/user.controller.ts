@@ -1,15 +1,37 @@
-import { Controller, Get, Req, Param } from "@nestjs/common";
+import { Controller, Get, Req, Param, Body, Post, ForbiddenException } from "@nestjs/common";
 import { Request } from "express";
-import { ApiBearerAuth, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
+import { Public } from "@common/decorators/public.decorator";
+import { UserService } from "./user.service";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 @ApiTags("users")
 @ApiBearerAuth()
 @Controller("/users")
 export class UserController {
+  constructor(private readonly userService: UserService) {}
+
   @Get("/:userId")
   @ApiOperation({ summary: "Fetch user by ID" })
   getUserById(@Req() req: Request, @Param("userId") userId: string): string {
-    // TODO - check if userId matches req.user.userId
+    if (req.user.id !== userId) {
+      throw new ForbiddenException("You are not allowed to access this resource.");
+    }
+
+    // TODO - lookup user from database
     return req.user;
+  }
+
+  @Post()
+  @Public()
+  @ApiOperation({
+    summary: "Create new user",
+  })
+  @ApiBody({ type: CreateUserDto })
+  async createUser(@Body() body: CreateUserDto) {
+    const user = await this.userService.create(body);
+    const { password, ...rest } = user;
+
+    return rest;
   }
 }
