@@ -1,6 +1,7 @@
 import { Controller, Req, Post, UseGuards } from "@nestjs/common";
 import { Request } from "express";
 import { ApiTags, ApiOperation, ApiBody } from "@nestjs/swagger";
+import { Public } from "@common/decorators/public.decorator";
 import { LoginDto } from "./dto/login.dto";
 import { LocalAuthGuard } from "./local-auth.guard";
 import { AuthService } from "./auth.service";
@@ -12,6 +13,7 @@ export class AuthController {
 
   @UseGuards(LocalAuthGuard)
   @Post("auth/login")
+  @Public()
   @ApiOperation({ summary: "Login user", description: "Authenticates a user and returns the user object." })
   @ApiBody({ type: LoginDto })
   async login(@Req() req: Request) {

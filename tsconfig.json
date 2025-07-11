@@ -13,6 +13,10 @@
     "rootDir": "./",
     "baseUrl": "./",
     "skipLibCheck": true,
-    "incremental": true
+    "incremental": true,
+    "paths": {
+      "@common/*": ["src/api/common/*"],
+      "@v1/*": ["src/api/v1/*"],
+    }
   }
 }
