@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Currency {
+  GBP
+}
+
+enum TransactionType {
+  deposit
+  withdrawal
+}
+
+enum AccountType {
+  personal
+}
+
+model User {
+  id           String   @id @default(uuid())
+  externalId   String   @unique @db.VarChar(32) // e.g., usr-ab123
+  name         String
+  addressLine1 String
+  addressLine2 String?
+  addressLine3 String?
+  town         String
+  county       String
+  postcode     String
+  phoneNumber  String   @db.VarChar(20)
+  email        String   @unique
+  accounts     BankAccount[]
+  transactions Transaction[] @relation("UserTransactions")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model BankAccount {
+  id            String   @id @default(uuid())
+  accountNumber String   @unique @db.VarChar(8) // ^01\d{6}$
+  sortCode      String   @default("10-10-10")
+  name          String
+  accountType   AccountType
+  balance       Decimal  @db.Decimal(10, 2)
+  currency      Currency
+  ownerId       String
+  owner         User     @relation(fields: [ownerId], references: [id])
+  transactions  Transaction[] @relation("AccountTransactions")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Transaction {
+  id          String   @id @default(uuid())
+  externalId  String   @unique @db.VarChar(32) // e.g., tan-xyz123
+  amount      Decimal  @db.Decimal(10, 2)
+  currency    Currency
+  type        TransactionType
+  reference   String?
+  userId      String
+  user        User        @relation("UserTransactions", fields: [userId], references: [id])
+  accountId   String
+  account     BankAccount @relation("AccountTransactions", fields: [accountId], references: [id])
+  createdAt   DateTime @default(now())
+}

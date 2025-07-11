@@ -15,3 +15,5 @@ node_modules
 # Documentation here: https://yarnpkg.com/features/caching#zero-installs
 
 dist
+
+/generated/prisma
