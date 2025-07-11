@@ -1,25 +1,54 @@
-// TODO - replace with PostgreSQL database connection
+import * as crypto from "node:crypto";
 import { Injectable } from "@nestjs/common";
-
-// This should be a real class/interface representing a user entity
-export type User = any;
+import { User } from "@prisma/client";
+import { PrismaService, PasswordService } from "@common/services";
+import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
 export class UserService {
-  private readonly users = [
-    {
-      userId: 1,
-      username: "john",
-      password: "changeme",
-    },
-    {
-      userId: 2,
-      username: "maria",
-      password: "guess",
-    },
-  ];
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly passwordService: PasswordService,
+  ) {}
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.username === username);
+  async findByExternalId(externalId: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { externalId },
+    });
+  }
+
+  async findByUsernameAndPassword(username: string, password: string): Promise<User | null> {
+    const hashedPassword = await this.passwordService.hash(password);
+
+    return this.prisma.user.findFirst({
+      where: {
+        username,
+        password: hashedPassword,
+      },
+    });
+  }
+
+  async create(input: CreateUserDto): Promise<User> {
+    const uuid = crypto.randomUUID();
+    const externalId = `usr-${uuid}`;
+    const hashedPassword = await this.passwordService.hash(input.password);
+
+    return this.prisma.user.create({
+      data: {
+        id: uuid,
+        externalId,
+        name: input.name,
+        username: input.username,
+        password: hashedPassword,
+        addressLine1: input.address.line1,
+        addressLine2: input.address.line2,
+        addressLine3: input.address.line3,
+        town: input.address.town,
+        county: input.address.county,
+        postcode: input.address.postcode,
+        phoneNumber: input.phoneNumber,
+        email: input.email,
+      },
+    });
   }
 }

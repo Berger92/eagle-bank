@@ -1,7 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { NestExpressApplication } from "@nestjs/platform-express";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import { VersioningType } from "@nestjs/common";
+import { VersioningType, ValidationPipe } from "@nestjs/common";
 import { AppModule } from "./app.module";
 
 const bootstrap = async () => {
@@ -25,6 +25,17 @@ const bootstrap = async () => {
       persistAuthorization: true,
     },
   });
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+      transformOptions: {
+        enableImplicitConversion: true,
+      },
+    }),
+  );
 
   const port = process.env.PORT || 3000;
   await app.listen(port);

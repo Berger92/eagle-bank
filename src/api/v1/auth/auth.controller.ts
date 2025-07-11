@@ -14,7 +14,10 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post("auth/login")
   @Public()
-  @ApiOperation({ summary: "Login user", description: "Authenticates a user and returns the user object." })
+  @ApiOperation({
+    summary: "Login user",
+    description: "Authenticates a user and returns the user object.",
+  })
   @ApiBody({ type: LoginDto })
   async login(@Req() req: Request) {
     return this.authService.login(req.user);

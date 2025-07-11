@@ -13,7 +13,8 @@ import { JwtStrategy } from "./jwt.strategy";
     UserModule,
     PassportModule,
     JwtModule.register({
-      secret: "DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.",
+      secret:
+        "DO NOT USE THIS VALUE. INSTEAD, CREATE A COMPLEX SECRET AND KEEP IT SAFE OUTSIDE OF THE SOURCE CODE.",
       signOptions: { expiresIn: "1h" },
     }),
   ],
