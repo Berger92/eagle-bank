@@ -12,6 +12,38 @@ tags:
   - name: user
     description: Manage a user
 paths:
+  /v1/auth/login:
+    post:
+      tags:
+        - auth
+      description: Authenticate a user and return a JWT token
+      operationId: login
+      requestBody:
+        description: Login with username and password
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: An unexpected error occurred
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
   /v1/accounts:
     post:
       tags:
@@ -619,6 +651,29 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 components:
   schemas:
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          examples:
+            - Test12
+        password:
+          type: string
+          format: password
+          examples:
+            - passw0rd!
+    LoginResponse:
+      type: object
+      required:
+        - accessToken
+      properties:
+        accessToken:
+          type: string
+          description: JWT token
     CreateBankAccountRequest:
       type: object
       required:
