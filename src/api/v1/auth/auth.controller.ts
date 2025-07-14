@@ -1,7 +1,7 @@
 import { Controller, Req, Post, UseGuards } from "@nestjs/common";
 import { Request } from "express";
 import { ApiTags, ApiOperation, ApiBody } from "@nestjs/swagger";
-import { Public } from "../../../shared/decorators/public.decorator";
+import { Public } from "@shared/decorators/public.decorator";
 import { LoginDto } from "./dto/login.dto";
 import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { AuthService } from "./auth.service";

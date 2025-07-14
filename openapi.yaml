@@ -669,9 +669,9 @@ components:
     LoginResponse:
       type: object
       required:
-        - accessToken
+        - access_token
       properties:
-        accessToken:
+        access_token:
           type: string
           description: JWT token
     CreateBankAccountRequest:
