@@ -46,7 +46,7 @@ export class UserResponse {
   static fromEntity(user: User): UserResponse {
     const dto = new UserResponse();
 
-    dto.id = user.id;
+    dto.id = user.externalId;
     dto.name = user.name;
     dto.phoneNumber = user.phoneNumber;
     dto.email = user.email;
