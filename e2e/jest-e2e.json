@@ -1,0 +1,15 @@
+{
+  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleNameMapper": {
+    "^@v1/(.*)$": "<rootDir>/../src/api/v1/$1",
+    "^@shared/(.*)$": "<rootDir>/../src/shared/$1"
+  },
+  "rootDir": ".",
+  "testRegex": ".e2e-spec.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "testEnvironment": "node",
+  "globalSetup": "./setup.ts",
+  "globalTeardown": "./teardown.ts"
+}

@@ -64,6 +64,7 @@ export class CreateUserRequest {
   @ApiProperty({ description: "Address of the user", type: CreateUserRequestAddress })
   @ValidateNested()
   @Type(() => CreateUserRequestAddress)
+  @IsNotEmpty()
   address: CreateUserRequestAddress;
 
   @ApiProperty({ description: "Phone number in E.164 format", example: "+1234567890" })
