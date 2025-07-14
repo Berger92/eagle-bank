@@ -14,8 +14,8 @@ export class UserController {
   @Get("/:userId")
   @ApiOperation({ summary: "Fetch user by ID" })
   getUserById(@Req() req: Request, @Param("userId") userId: string): string {
-    if (req.user.id !== userId) {
-      throw new ForbiddenException("You are not allowed to access this resource.");
+    if (req.user.externalId !== userId) {
+      throw new ForbiddenException();
     }
 
     // TODO - lookup user from database
