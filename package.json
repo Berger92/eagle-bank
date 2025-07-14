@@ -11,8 +11,7 @@
     "start:dev": "nest start --watch",
     "start:prod": "node dist/src/main",
     "format": "prettier --write ./src/**/*.{ts,js,json,md}",
-    "format:check": "prettier --check ./src/**/*.{ts,js,json,md}",
-    "generate:types": "openapi-typescript openapi.yaml -o src/types/openapi.ts"
+    "format:check": "prettier --check ./src/**/*.{ts,js,json,md}"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.3",
