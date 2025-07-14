@@ -1,7 +1,8 @@
 import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { JwtPayload } from "../types";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -13,7 +14,13 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: any) {
+  async validate(payload: JwtPayload) {
+    const expectedEnv = this.configService.getOrThrow<string>("ENVIRONMENT");
+
+    if (payload.env !== expectedEnv) {
+      throw new UnauthorizedException("Token was issued for a different environment");
+    }
+
     return { externalId: payload.sub };
   }
 }

@@ -1,7 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { UserService } from "@v1/user";
-import { PasswordService } from "../../../shared/services";
+import { ConfigService } from "@nestjs/config";
+import { UserService, UserWithoutPassword } from "@v1/user";
+import { PasswordService } from "@shared/services";
 
 @Injectable()
 export class AuthService {
@@ -9,9 +10,10 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly passwordService: PasswordService,
     private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
   ) {}
 
-  async validateUser(username: string, password: string): Promise<any> {
+  async validateUser(username: string, password: string): Promise<UserWithoutPassword | null> {
     const user = await this.userService.findByUsername(username);
 
     if (user) {
@@ -27,8 +29,13 @@ export class AuthService {
     return null;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.externalId };
+  async login(user: UserWithoutPassword): Promise<{ access_token: string }> {
+    const payload = {
+      username: user.username,
+      sub: user.externalId,
+      env: this.configService.getOrThrow<string>("ENVIRONMENT"),
+    };
+
     return {
       access_token: this.jwtService.sign(payload),
     };
