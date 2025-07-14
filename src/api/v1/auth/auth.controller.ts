@@ -3,7 +3,7 @@ import { Request } from "express";
 import { ApiTags, ApiOperation, ApiBody } from "@nestjs/swagger";
 import { Public } from "@common/decorators/public.decorator";
 import { LoginDto } from "./dto/login.dto";
-import { LocalAuthGuard } from "./local-auth.guard";
+import { LocalAuthGuard } from "./guards/local-auth.guard";
 import { AuthService } from "./auth.service";
 
 @ApiTags("auth")
