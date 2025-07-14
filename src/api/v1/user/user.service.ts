@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { User } from "@prisma/client";
-import { PrismaService, PasswordService } from "../../../shared/services";
+import { PrismaService, PasswordService } from "@shared/services";
 import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()
@@ -27,7 +27,7 @@ export class UserService {
 
   async create(input: CreateUserDto): Promise<User> {
     const uuid = crypto.randomUUID();
-    const externalId = `usr-${uuid}`;
+    const externalId = this.formatExternalId(uuid);
     const hashedPassword = await this.passwordService.hash(input.password);
 
     return this.prisma.user.create({
@@ -47,5 +47,17 @@ export class UserService {
         email: input.email,
       },
     });
+  }
+
+  formatExternalId(internalId: string): string {
+    return `usr-${internalId}`;
+  }
+
+  parseInternalId(externalId: string): string {
+    if (!externalId.startsWith("usr-")) {
+      throw new Error(`Invalid external user ID: ${externalId}`);
+    }
+
+    return externalId.slice(4);
   }
 }

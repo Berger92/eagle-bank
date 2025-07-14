@@ -2,11 +2,16 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
+import { AuthenticatedUser } from "@shared/types";
+import { UserService } from "@v1/user";
 import { JwtPayload } from "../types";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userService: UserService,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -14,13 +19,20 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JwtPayload) {
+  async validate(payload: JwtPayload): Promise<AuthenticatedUser> {
     const expectedEnv = this.configService.getOrThrow<string>("ENVIRONMENT");
 
     if (payload.env !== expectedEnv) {
       throw new UnauthorizedException("Token was issued for a different environment");
     }
 
-    return { externalId: payload.sub };
+    // NOTE: Shortcut – assumes externalId is in the form 'usr-<internalId>'.
+    // This avoids a DB lookup for now, but may need to be replaced with one
+    // if additional user fields are required (e.g., roles, status).
+
+    const externalId = payload.sub;
+    const internalId = this.userService.parseInternalId(externalId);
+
+    return { externalId, internalId };
   }
 }
