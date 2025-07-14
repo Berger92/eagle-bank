@@ -1,7 +1,7 @@
 import * as crypto from "node:crypto";
 import { Injectable } from "@nestjs/common";
 import { User } from "@prisma/client";
-import { PrismaService, PasswordService } from "@common/services";
+import { PrismaService, PasswordService } from "../../../shared/services";
 import { CreateUserDto } from "./dto/create-user.dto";
 
 @Injectable()

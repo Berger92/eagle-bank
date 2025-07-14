@@ -16,7 +16,7 @@
     "skipLibCheck": true,
     "incremental": true,
     "paths": {
-      "@common/*": ["src/api/common/*"],
+      "@shared/*": ["src/shared/*"],
       "@v1/*": ["src/api/v1/*"],
     }
   }

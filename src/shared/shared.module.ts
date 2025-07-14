@@ -6,4 +6,4 @@ import { PrismaService, PasswordService } from "./services";
   providers: [PrismaService, PasswordService],
   exports: [PrismaService, PasswordService],
 })
-export class CommonModule {}
+export class SharedModule {}

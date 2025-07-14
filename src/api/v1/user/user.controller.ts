@@ -1,7 +1,7 @@
 import { Controller, Get, Req, Param, Body, Post, ForbiddenException } from "@nestjs/common";
 import { Request } from "express";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public } from "@common/decorators/public.decorator";
+import { Public } from "../../../shared/decorators/public.decorator";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 
