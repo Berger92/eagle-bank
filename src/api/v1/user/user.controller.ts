@@ -1,9 +1,10 @@
-import { Controller, Get, Req, Param, Body, Post, ForbiddenException } from "@nestjs/common";
-import { Request } from "express";
+import { Controller, Get, Param, Body, Post, ForbiddenException } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
-import { Public } from "../../../shared/decorators/public.decorator";
+import { Public } from "@shared/decorators/public.decorator";
+import { CurrentUser } from "@shared/decorators/current-user.decorator";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
+import { AuthenticatedUser } from "@shared/types";
 
 @ApiTags("users")
 @ApiBearerAuth()
@@ -13,13 +14,16 @@ export class UserController {
 
   @Get("/:userId")
   @ApiOperation({ summary: "Fetch user by ID" })
-  getUserById(@Req() req: Request, @Param("userId") userId: string): string {
-    if (req.user.externalId !== userId) {
+  getUserById(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("userId") userId: string,
+  ): AuthenticatedUser {
+    if (user.externalId !== userId) {
       throw new ForbiddenException();
     }
 
     // TODO - lookup user from database
-    return req.user;
+    return user;
   }
 
   @Post()
