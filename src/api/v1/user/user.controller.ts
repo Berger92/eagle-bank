@@ -1,9 +1,27 @@
-import { Controller, Get, Param, Body, Post, ForbiddenException } from "@nestjs/common";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {
+  Controller,
+  Get,
+  Param,
+  Body,
+  Post,
+  ForbiddenException,
+  NotFoundException,
+} from "@nestjs/common";
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiTags,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse,
+  ApiNotFoundResponse,
+} from "@nestjs/swagger";
 import { Public } from "@shared/decorators/public.decorator";
 import { CurrentUser } from "@shared/decorators/current-user.decorator";
 import { UserService } from "./user.service";
-import { CreateUserDto } from "./dto/create-user.dto";
+import { CreateUserRequest, UserResponse } from "./dto";
 import { AuthenticatedUser } from "@shared/types";
 
 @ApiTags("users")
@@ -14,16 +32,28 @@ export class UserController {
 
   @Get("/:userId")
   @ApiOperation({ summary: "Fetch user by ID" })
-  getUserById(
+  @ApiOkResponse({
+    description: "The user details",
+    type: UserResponse,
+  })
+  @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
+  @ApiBadRequestResponse({ description: "Invalid details supplied" })
+  @ApiNotFoundResponse({ description: "User was not found" })
+  async getUserById(
     @CurrentUser() user: AuthenticatedUser,
     @Param("userId") userId: string,
-  ): AuthenticatedUser {
+  ): Promise<UserResponse> {
     if (user.externalId !== userId) {
       throw new ForbiddenException();
     }
 
-    // TODO - lookup user from database
-    return user;
+    const userEntity = await this.userService.findByExternalId(user.externalId);
+
+    if (!userEntity) {
+      throw new NotFoundException();
+    }
+
+    return UserResponse.fromEntity(userEntity);
   }
 
   @Post()
@@ -31,11 +61,15 @@ export class UserController {
   @ApiOperation({
     summary: "Create new user",
   })
-  @ApiBody({ type: CreateUserDto })
-  async createUser(@Body() body: CreateUserDto) {
-    const user = await this.userService.create(body);
-    const { password, ...rest } = user;
+  @ApiBody({ type: CreateUserRequest })
+  @ApiCreatedResponse({
+    description: "User has been created successfully",
+    type: UserResponse,
+  })
+  @ApiBadRequestResponse({ description: "Invalid details supplied" })
+  async createUser(@Body() body: CreateUserRequest): Promise<UserResponse> {
+    const userEntity = await this.userService.create(body);
 
-    return rest;
+    return UserResponse.fromEntity(userEntity);
   }
 }

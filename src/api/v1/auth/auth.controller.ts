@@ -16,17 +16,17 @@ export class AuthController {
   @Public()
   @ApiOperation({
     summary: "Login user",
-    description: "Authenticates a user and returns the access token.",
+    description: "Authenticates a user and returns the access token",
   })
   @ApiBody({ type: LoginRequest })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: "User successfully logged in.",
+    description: "User successfully logged in",
     type: LoginResponse,
   })
   @ApiResponse({
     status: HttpStatus.UNAUTHORIZED,
-    description: "Invalid credentials.",
+    description: "Invalid credentials",
   })
   async login(@Req() req: Request): Promise<LoginResponse> {
     return this.authService.login(req.user);

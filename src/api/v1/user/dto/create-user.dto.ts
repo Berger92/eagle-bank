@@ -11,7 +11,7 @@ import {
 import { Type } from "class-transformer";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CreateUserAddressDto {
+export class CreateUserRequestAddress {
   @ApiProperty({ description: "First line of the address" })
   @IsString()
   @IsNotEmpty()
@@ -43,7 +43,7 @@ export class CreateUserAddressDto {
   postcode: string;
 }
 
-export class CreateUserDto {
+export class CreateUserRequest {
   @ApiProperty({ description: "Full name of the user" })
   @IsString()
   @IsNotEmpty()
@@ -61,10 +61,10 @@ export class CreateUserDto {
   @MaxLength(64)
   password: string;
 
-  @ApiProperty({ description: "Address of the user", type: CreateUserAddressDto })
+  @ApiProperty({ description: "Address of the user", type: CreateUserRequestAddress })
   @ValidateNested()
-  @Type(() => CreateUserAddressDto)
-  address: CreateUserAddressDto;
+  @Type(() => CreateUserRequestAddress)
+  address: CreateUserRequestAddress;
 
   @ApiProperty({ description: "Phone number in E.164 format", example: "+1234567890" })
   @IsString()
