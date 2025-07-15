@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Delete } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post } from "@nestjs/common";
 import {
   ApiBearerAuth,
   ApiTags,
@@ -35,65 +35,42 @@ export class AccountController {
   })
   @ApiBadRequestResponse({ description: "Invalid details supplied" })
   @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
-  @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  create(
+  @ApiInternalServerErrorResponse({ description: "An unexpected error occurred" })
+  async create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() createAccountDto: CreateBankAccountRequest,
   ): Promise<BankAccountResponse> {
-    return this.accountService.create(createAccountDto, user.internalId);
+    const account = await this.accountService.create(createAccountDto, user.internalId);
+
+    return BankAccountResponse.fromEntity(account);
   }
 
   @Get()
   @ApiOperation({ summary: "List all bank accounts for the authenticated user" })
   @ApiOkResponse({ description: "List of bank accounts", type: ListBankAccountsResponse })
   @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
-  @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  findAll(@CurrentUser() user: AuthenticatedUser): Promise<ListBankAccountsResponse> {
-    return this.accountService.findAllUserAccounts(user.internalId);
+  @ApiInternalServerErrorResponse({ description: "An unexpected error occurred" })
+  async findAll(@CurrentUser() user: AuthenticatedUser): Promise<ListBankAccountsResponse> {
+    const accounts = await this.accountService.findAllUserAccounts(user.internalId);
+
+    return ListBankAccountsResponse.fromEntities(accounts);
   }
 
   @Get(":accountNumber")
   @ApiOperation({ summary: "Fetch bank account by account number" })
   @ApiParam({ name: "accountNumber", example: "01234567", schema: { pattern: "^01\\d{6}$" } })
   @ApiOkResponse({ description: "Account found", type: BankAccountResponse })
-  @ApiBadRequestResponse({ description: "Invalid request" })
+  @ApiBadRequestResponse({ description: "Invalid details supplied" })
   @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
   @ApiForbiddenResponse({ description: "User is not allowed to access this account" })
   @ApiNotFoundResponse({ description: "Account not found" })
-  @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  findOne(
+  @ApiInternalServerErrorResponse({ description: "An unexpected error occurred" })
+  async findOne(
     @CurrentUser() user: AuthenticatedUser,
     @Param("accountNumber") accountNumber: string,
   ): Promise<BankAccountResponse> {
-    return this.accountService.getAccountIfOwned(accountNumber, user.internalId);
+    const account = await this.accountService.getAccountIfOwned(accountNumber, user.internalId);
+
+    return BankAccountResponse.fromEntity(account);
   }
-
-  // @Patch(":accountNumber")
-  // @ApiOperation({ summary: "Update a bank account" })
-  // @ApiParam({ name: "accountNumber", example: "01234567", schema: { pattern: "^01\\d{6}$" } })
-  // @ApiOkResponse({ description: "Account updated" })
-  // @ApiBadRequestResponse({ description: "Invalid request body or params" })
-  // @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
-  // @ApiForbiddenResponse({ description: "User is not allowed to update this account" })
-  // @ApiNotFoundResponse({ description: "Account not found" })
-  // @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  // update(
-  //   @Param("accountNumber") accountNumber: string,
-  //   @Body() updateAccountDto: Partial<CreateBankAccountRequest>,
-  // ) {
-  //   return this.accountService.update(accountNumber, updateAccountDto);
-  // }
-
-  // @Delete(":accountNumber")
-  // @ApiOperation({ summary: "Delete a bank account" })
-  // @ApiParam({ name: "accountNumber", example: "01234567", schema: { pattern: "^01\\d{6}$" } })
-  // @ApiNoContentResponse({ description: "Account successfully deleted" })
-  // @ApiBadRequestResponse({ description: "Invalid account number" })
-  // @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
-  // @ApiForbiddenResponse({ description: "User is not allowed to delete this account" })
-  // @ApiNotFoundResponse({ description: "Account not found" })
-  // @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  // remove(@Param("accountNumber") accountNumber: string) {
-  //   return this.accountService.remove(accountNumber);
-  // }
 }

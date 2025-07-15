@@ -1,15 +1,14 @@
 import { randomInt } from "node:crypto";
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
-import { Currency } from "@prisma/client";
-import { CreateBankAccountRequest, BankAccountResponse } from "./dto";
+import { BankAccount, Currency } from "@prisma/client";
+import { CreateBankAccountRequest } from "./dto";
 import { AccountRepository } from "./account.repository";
-import { ListBankAccountsResponse } from "@v1/account/dto/list-accounts-response.dto";
 
 @Injectable()
 export class AccountService {
   constructor(private readonly accountRepository: AccountRepository) {}
 
-  async create(input: CreateBankAccountRequest, userId: string): Promise<BankAccountResponse> {
+  async create(input: CreateBankAccountRequest, userId: string): Promise<BankAccount> {
     const accountNumber = `01${randomInt(100000, 999999).toString()}`;
     const sortCode = "10-10-10";
     const balance = 0.0;
@@ -25,21 +24,25 @@ export class AccountService {
       accountType: input.accountType,
     });
 
-    return BankAccountResponse.fromEntity(account);
+    return account;
   }
 
-  async getAccountIfOwned(accountNumber: string, userId: string): Promise<BankAccountResponse> {
+  async getAccountIfOwned(accountNumber: string, userId: string): Promise<BankAccount> {
     const account = await this.accountRepository.findByAccountNumber(accountNumber);
 
     if (!account) throw new NotFoundException();
     if (account.ownerId !== userId) throw new ForbiddenException();
 
-    return BankAccountResponse.fromEntity(account);
+    return account;
   }
 
-  async findAllUserAccounts(userId: string): Promise<ListBankAccountsResponse> {
+  async findAllUserAccounts(userId: string): Promise<BankAccount[]> {
     const accounts = await this.accountRepository.findAllByUser(userId);
 
-    return ListBankAccountsResponse.fromEntities(accounts);
+    return accounts;
+  }
+
+  async updateBalance(accountId: string, amountDelta: number): Promise<BankAccount> {
+    return this.accountRepository.incrementBalance(accountId, amountDelta);
   }
 }

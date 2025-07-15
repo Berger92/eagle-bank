@@ -32,6 +32,17 @@ export class AccountRepository {
     });
   }
 
+  async incrementBalance(accountId: string, amountDelta: number): Promise<BankAccount> {
+    return this.prisma.bankAccount.update({
+      where: { id: accountId },
+      data: {
+        balance: {
+          increment: amountDelta,
+        },
+      },
+    });
+  }
+
   // update(accountNumber: string, updateAccountDto: Partial<CreateBankAccountRequest>) {
   //   // TODO: Implement update logic
   //   return `Account ${accountNumber} updated`;

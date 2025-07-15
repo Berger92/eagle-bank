@@ -4,6 +4,7 @@ import { ConfigModule } from "@nestjs/config";
 import { AuthModule, JwtAuthGuard } from "@v1/auth";
 import { UserModule } from "@v1/user";
 import { AccountModule } from "@v1/account";
+import { TransactionModule } from "@v1/transaction";
 import { SharedModule } from "@shared/shared.module";
 import { AppController } from "./app.controller";
 
@@ -15,6 +16,7 @@ import { AppController } from "./app.controller";
     AuthModule,
     UserModule,
     AccountModule,
+    TransactionModule,
   ],
   providers: [
     {
