@@ -17,6 +17,8 @@ import { AccountService } from "./account.service";
 import { CreateBankAccountRequest } from "./dto";
 import { CurrentUser } from "@shared/decorators/current-user.decorator";
 import { AuthenticatedUser } from "@shared/types";
+import { BankAccountResponse } from "@v1/account/dto/account-response.dto";
+import { ListBankAccountsResponse } from "@v1/account/dto/list-accounts-response.dto";
 
 @ApiTags("account")
 @ApiBearerAuth()
@@ -27,36 +29,42 @@ export class AccountController {
   @Post()
   @ApiOperation({ summary: "Create a new bank account" })
   @ApiBody({ type: CreateBankAccountRequest })
-  @ApiCreatedResponse({ description: "Bank account has been created successfully" })
+  @ApiCreatedResponse({
+    description: "Bank account has been created successfully",
+    type: BankAccountResponse,
+  })
   @ApiBadRequestResponse({ description: "Invalid details supplied" })
   @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
   @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
   create(
     @CurrentUser() user: AuthenticatedUser,
     @Body() createAccountDto: CreateBankAccountRequest,
-  ) {
+  ): Promise<BankAccountResponse> {
     return this.accountService.create(createAccountDto, user.internalId);
   }
 
   @Get()
   @ApiOperation({ summary: "List all bank accounts for the authenticated user" })
-  @ApiOkResponse({ description: "List of bank accounts" })
+  @ApiOkResponse({ description: "List of bank accounts", type: ListBankAccountsResponse })
   @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
   @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  findAll(@CurrentUser() user: AuthenticatedUser) {
+  findAll(@CurrentUser() user: AuthenticatedUser): Promise<ListBankAccountsResponse> {
     return this.accountService.findAllUserAccounts(user.internalId);
   }
 
   @Get(":accountNumber")
   @ApiOperation({ summary: "Fetch bank account by account number" })
   @ApiParam({ name: "accountNumber", example: "01234567", schema: { pattern: "^01\\d{6}$" } })
-  @ApiOkResponse({ description: "Account found" })
+  @ApiOkResponse({ description: "Account found", type: BankAccountResponse })
   @ApiBadRequestResponse({ description: "Invalid request" })
   @ApiUnauthorizedResponse({ description: "Access token is missing or invalid" })
   @ApiForbiddenResponse({ description: "User is not allowed to access this account" })
   @ApiNotFoundResponse({ description: "Account not found" })
   @ApiInternalServerErrorResponse({ description: "Unexpected error occurred" })
-  findOne(@CurrentUser() user: AuthenticatedUser, @Param("accountNumber") accountNumber: string) {
+  findOne(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("accountNumber") accountNumber: string,
+  ): Promise<BankAccountResponse> {
     return this.accountService.getAccountIfOwned(accountNumber, user.internalId);
   }
 

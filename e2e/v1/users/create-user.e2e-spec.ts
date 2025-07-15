@@ -20,11 +20,6 @@ describe("Create User (e2e)", () => {
 
       const res = await request(app.getHttpServer()).post("/v1/users").send(userDto).expect(201);
 
-      // expect(res.body).toHaveProperty("id");
-      // expect(res.body.id).toMatch(/^usr-[a-zA-Z0-9-]+$/);
-      // expect(res.body.name).toBe(userDto.name);
-      // expect(res.body.email).toBe(userDto.email);
-
       expect(res.body).toEqual(
         expect.objectContaining({
           id: expect.stringMatching(/^usr-/),
