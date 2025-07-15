@@ -1,6 +1,7 @@
 import { INestApplication } from "@nestjs/common";
 import * as request from "supertest";
 import { createTestApp } from "../../utils/create-app";
+import { makeUserDto } from "../../factories/user.factory";
 
 describe("Create User (e2e)", () => {
   let app: INestApplication;
@@ -15,27 +16,27 @@ describe("Create User (e2e)", () => {
 
   describe("Given valid signup data", () => {
     it("When POST /v1/users is called, Then it should return 201 and the new user object", async () => {
-      const res = await request(app.getHttpServer())
-        .post("/v1/users")
-        .send({
-          name: "Jane Doe",
-          username: "janedoe",
-          password: "SecurePassword123!",
-          email: "jane.doe@example.com",
-          phoneNumber: "+441234567890",
-          address: {
-            line1: "1 High Street",
-            town: "London",
-            county: "Greater London",
-            postcode: "W1A 1AA",
-          },
-        })
-        .expect(201);
+      const userDto = makeUserDto();
 
-      expect(res.body).toHaveProperty("id");
-      expect(res.body.id).toMatch(/^usr-[a-zA-Z0-9-]+$/);
-      expect(res.body.name).toBe("Jane Doe");
-      expect(res.body.email).toBe("jane.doe@example.com");
+      const res = await request(app.getHttpServer()).post("/v1/users").send(userDto).expect(201);
+
+      // expect(res.body).toHaveProperty("id");
+      // expect(res.body.id).toMatch(/^usr-[a-zA-Z0-9-]+$/);
+      // expect(res.body.name).toBe(userDto.name);
+      // expect(res.body.email).toBe(userDto.email);
+
+      expect(res.body).toEqual(
+        expect.objectContaining({
+          id: expect.stringMatching(/^usr-/),
+          name: userDto.name,
+          email: userDto.email,
+          phoneNumber: userDto.phoneNumber,
+          address: expect.any(Object),
+        }),
+      );
+
+      expect(res.body.createdTimestamp).toBeDefined();
+      expect(new Date(res.body.createdTimestamp).toString()).not.toBe("Invalid Date");
     });
   });
 
