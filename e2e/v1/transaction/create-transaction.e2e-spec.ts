@@ -3,9 +3,7 @@ import { INestApplication } from "@nestjs/common";
 import { CreateTransactionRequest } from "@v1/transaction";
 import { TransactionType } from "@v1/transaction/types";
 import { Currency } from "@v1/account";
-import { createUserAndLogin } from "../../utils/create-user-and-login";
-import { createTestApp } from "../../utils/create-app";
-import { createBankAccount } from "../../utils/create-bank-account";
+import { createUserAndLogin, createTestApp, createBankAccount } from "../../utils";
 
 describe("POST /v1/accounts/{accountNumber}/transactions (Create Transaction)", () => {
   let app: INestApplication;

@@ -1,6 +1,6 @@
 import { INestApplication } from "@nestjs/common";
 import * as request from "supertest";
-import { createTestApp } from "../../utils/create-app";
+import { createTestApp } from "../../utils";
 import { makeUserDto } from "../../factories/user.factory";
 
 describe("Create User (e2e)", () => {

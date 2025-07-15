@@ -1,8 +1,6 @@
 import * as request from "supertest";
 import { INestApplication } from "@nestjs/common";
-import { createUserAndLogin } from "../../utils/create-user-and-login";
-import { createTestApp } from "../../utils/create-app";
-import { createBankAccount } from "../../utils/create-bank-account";
+import { createUserAndLogin, createTestApp, createBankAccount } from "../../utils";
 
 describe("GET /v1/accounts/{accountNumber}/transactions/(:transactionId)", () => {
   let app: INestApplication;

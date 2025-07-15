@@ -1,6 +1,6 @@
 import * as request from "supertest";
 import { INestApplication } from "@nestjs/common";
-import { createTestApp } from "../../utils/create-app";
+import { createTestApp } from "../../utils";
 import { makeUserDto } from "../../factories/user.factory";
 
 describe("Authenticate a user", () => {
