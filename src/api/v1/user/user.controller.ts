@@ -47,13 +47,7 @@ export class UserController {
       throw new ForbiddenException();
     }
 
-    const userEntity = await this.userService.findByExternalId(user.externalId);
-
-    if (!userEntity) {
-      throw new NotFoundException();
-    }
-
-    return UserResponse.fromEntity(userEntity);
+    return this.userService.findByExternalId(user.externalId);
   }
 
   @Post()
@@ -68,8 +62,6 @@ export class UserController {
   })
   @ApiBadRequestResponse({ description: "Invalid details supplied" })
   async createUser(@Body() body: CreateUserRequest): Promise<UserResponse> {
-    const userEntity = await this.userService.create(body);
-
-    return UserResponse.fromEntity(userEntity);
+    return this.userService.create(body);
   }
 }

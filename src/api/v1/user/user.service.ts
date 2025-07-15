@@ -1,8 +1,8 @@
 import * as crypto from "node:crypto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { PasswordService } from "@shared/services";
-import { CreateUserRequest } from "./dto";
+import { CreateUserRequest, UserResponse } from "./dto";
 import { UserRepository } from "./user.repository";
 
 @Injectable()
@@ -12,12 +12,12 @@ export class UserService {
     private readonly passwordService: PasswordService,
   ) {}
 
-  async create(input: CreateUserRequest): Promise<User> {
+  async create(input: CreateUserRequest): Promise<UserResponse> {
     const uuid = crypto.randomUUID();
     const externalId = this.formatExternalId(uuid);
     const hashedPassword = await this.passwordService.hash(input.password);
 
-    return this.userRepository.create({
+    const user = await this.userRepository.create({
       id: uuid,
       externalId,
       name: input.name,
@@ -32,6 +32,8 @@ export class UserService {
       phoneNumber: input.phoneNumber,
       email: input.email,
     });
+
+    return UserResponse.fromEntity(user);
   }
 
   formatExternalId(internalId: string): string {
@@ -46,8 +48,14 @@ export class UserService {
     return externalId.slice(4);
   }
 
-  findByExternalId(externalId: string): Promise<User | null> {
-    return this.userRepository.findByExternalId(externalId);
+  async findByExternalId(externalId: string): Promise<UserResponse> {
+    const user = await this.userRepository.findByExternalId(externalId);
+
+    if (!user) {
+      throw new NotFoundException();
+    }
+
+    return UserResponse.fromEntity(user);
   }
 
   findByUsername(username: string): Promise<User | null> {
