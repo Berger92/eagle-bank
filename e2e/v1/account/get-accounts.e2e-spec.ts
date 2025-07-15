@@ -1,6 +1,6 @@
 import * as request from "supertest";
 import { INestApplication } from "@nestjs/common";
-import { createUserAndLogin } from "../../utils/user-auth";
+import { createUserAndLogin } from "../../utils/create-user-and-login";
 import { createTestApp } from "../../utils/create-app";
 
 describe("GET /v1/accounts (List & Fetch Account)", () => {
