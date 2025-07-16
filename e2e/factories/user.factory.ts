@@ -1,5 +1,5 @@
 import { faker } from "@faker-js/faker";
-import { CreateUserRequest } from "@v1/user/dto/create-user.dto";
+import { CreateUserRequest } from "../../src/v1/modules/user/dto/create-user.dto";
 
 export const makeUserDto = (overrides: Partial<CreateUserRequest> = {}): CreateUserRequest => {
   return {

@@ -1,6 +1,6 @@
 import * as request from "supertest";
 import { INestApplication } from "@nestjs/common";
-import { AccountType, CreateBankAccountRequest } from "@v1/account";
+import { AccountType, CreateBankAccountRequest } from "@v1/modules/account";
 import { createUserAndLogin, createTestApp } from "../../utils";
 
 describe("POST /v1/accounts (Create Account)", () => {
