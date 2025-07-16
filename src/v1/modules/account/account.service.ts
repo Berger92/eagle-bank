@@ -42,7 +42,7 @@ export class AccountService {
     return accounts;
   }
 
-  async updateBalance(accountId: string, amountDelta: number): Promise<BankAccount> {
+  async incrementBalance(accountId: string, amountDelta: number): Promise<BankAccount> {
     return this.accountRepository.incrementBalance(accountId, amountDelta);
   }
 }

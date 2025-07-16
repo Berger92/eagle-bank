@@ -16,12 +16,16 @@ import { CurrentUser } from "@shared/decorators/current-user.decorator";
 import { AuthenticatedUser } from "@shared/types";
 import { CreateTransactionRequest, ListTransactionResponse, TransactionResponse } from "./dto";
 import { TransactionService } from "./transaction.service";
+import { TransactionMapper } from "./transaction.mapper";
 
 @Controller("accounts/:accountNumber/transactions")
 @ApiTags("transaction")
 @ApiBearerAuth()
 export class TransactionController {
-  constructor(private readonly transactionService: TransactionService) {}
+  constructor(
+    private readonly transactionService: TransactionService,
+    private readonly transactionMapper: TransactionMapper,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a transaction" })
@@ -43,7 +47,7 @@ export class TransactionController {
   ): Promise<TransactionResponse> {
     const transaction = await this.transactionService.create(accountNumber, user.internalId, dto);
 
-    return TransactionResponse.fromEntity(transaction);
+    return this.transactionMapper.toResponseDto(transaction);
   }
 
   @Get()
@@ -63,7 +67,10 @@ export class TransactionController {
       user.internalId,
     );
 
-    return ListTransactionResponse.fromEntities(transactions);
+    const response = new ListTransactionResponse();
+    response.transactions = transactions.map(this.transactionMapper.toResponseDto);
+
+    return response;
   }
 
   @Get(":transactionId")
@@ -88,6 +95,6 @@ export class TransactionController {
       transactionId,
     );
 
-    return TransactionResponse.fromEntity(transaction);
+    return this.transactionMapper.toResponseDto(transaction);
   }
 }

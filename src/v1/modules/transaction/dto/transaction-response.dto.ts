@@ -1,7 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { Transaction } from "@prisma/client";
 import { Currency } from "../../account";
-import { formatExternalId } from "../../user";
 import { TransactionType } from "../types";
 
 export class TransactionResponse {
@@ -25,16 +23,4 @@ export class TransactionResponse {
 
   @ApiProperty({ example: "2025-07-15T12:34:56.000Z", format: "date-time" })
   createdTimestamp: string;
-
-  static fromEntity(entity: Transaction): TransactionResponse {
-    const dto = new TransactionResponse();
-    dto.id = entity.externalId;
-    dto.amount = entity.amount.toNumber();
-    dto.currency = entity.currency as Currency;
-    dto.type = entity.type as TransactionType;
-    dto.reference = entity.reference ?? undefined;
-    dto.userId = formatExternalId(entity.userId);
-    dto.createdTimestamp = entity.createdAt.toISOString();
-    return dto;
-  }
 }

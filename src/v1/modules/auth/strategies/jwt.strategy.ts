@@ -3,12 +3,15 @@ import { PassportStrategy } from "@nestjs/passport";
 import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { AuthenticatedUser } from "@shared/types";
-import { parseInternalId } from "../../user";
+import { UserMapper } from "../../user";
 import { JwtPayload } from "../types";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly configService: ConfigService) {
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly userMapper: UserMapper,
+  ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -28,7 +31,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     // if additional user fields are required (e.g., roles, status).
 
     const externalId = payload.sub;
-    const internalId = parseInternalId(externalId);
+    const internalId = this.userMapper.parseInternalId(externalId);
 
     return { externalId, internalId };
   }

@@ -4,18 +4,19 @@ import { User } from "@prisma/client";
 import { PasswordService } from "@shared/services";
 import { CreateUserRequest, UserResponse } from "./dto";
 import { UserRepository } from "./user.repository";
-import { formatExternalId } from "./utils";
+import { UserMapper } from "./user.mapper";
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
+    private readonly userMapper: UserMapper,
     private readonly passwordService: PasswordService,
   ) {}
 
   async create(input: CreateUserRequest): Promise<UserResponse> {
     const uuid = crypto.randomUUID();
-    const externalId = formatExternalId(uuid);
+    const externalId = this.userMapper.formatExternalId(uuid);
     const hashedPassword = await this.passwordService.hash(input.password);
 
     const user = await this.userRepository.create({
