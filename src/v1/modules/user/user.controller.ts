@@ -12,15 +12,19 @@ import {
 } from "@nestjs/swagger";
 import { Public } from "@shared/decorators/public.decorator";
 import { CurrentUser } from "@shared/decorators/current-user.decorator";
+import { AuthenticatedUser } from "@shared/types";
 import { UserService } from "./user.service";
 import { CreateUserRequest, UserResponse } from "./dto";
-import { AuthenticatedUser } from "@shared/types";
+import { UserMapper } from "./user.mapper";
 
 @ApiTags("users")
 @ApiBearerAuth()
 @Controller("/users")
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly userMapper: UserMapper,
+  ) {}
 
   @Get("/:userId")
   @ApiOperation({ summary: "Fetch user by ID" })
@@ -39,7 +43,8 @@ export class UserController {
       throw new ForbiddenException();
     }
 
-    return this.userService.findByExternalId(user.externalId);
+    const userEntity = await this.userService.findByExternalId(user.externalId);
+    return this.userMapper.toResponseDto(userEntity);
   }
 
   @Post()
@@ -54,6 +59,8 @@ export class UserController {
   })
   @ApiBadRequestResponse({ description: "Invalid details supplied" })
   async createUser(@Body() body: CreateUserRequest): Promise<UserResponse> {
-    return this.userService.create(body);
+    const user = await this.userService.create(body);
+
+    return this.userMapper.toResponseDto(user);
   }
 }

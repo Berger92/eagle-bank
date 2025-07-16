@@ -41,14 +41,16 @@ export class TransactionMapper {
   }
 
   toResponseDto(entity: Transaction): TransactionResponse {
-    return {
-      id: entity.externalId,
-      amount: entity.amount.toNumber(),
-      currency: entity.currency as Currency,
-      type: entity.type as TransactionType,
-      reference: entity.reference || undefined,
-      userId: this.userMapper.formatExternalId(entity.userId),
-      createdTimestamp: entity.createdAt.toISOString(),
-    };
+    const transactionResponse = new TransactionResponse();
+
+    transactionResponse.id = entity.externalId;
+    transactionResponse.amount = entity.amount.toNumber();
+    transactionResponse.currency = entity.currency as Currency;
+    transactionResponse.type = entity.type as TransactionType;
+    transactionResponse.reference = entity.reference || undefined;
+    transactionResponse.userId = this.userMapper.formatExternalId(entity.userId);
+    transactionResponse.createdTimestamp = entity.createdAt.toISOString();
+
+    return transactionResponse;
   }
 }

@@ -14,6 +14,7 @@ import {
   ApiInternalServerErrorResponse,
 } from "@nestjs/swagger";
 import { AccountService } from "./account.service";
+import { AccountMapper } from "./account.mapper";
 import { CreateBankAccountRequest } from "./dto";
 import { CurrentUser } from "@shared/decorators/current-user.decorator";
 import { AuthenticatedUser } from "@shared/types";
@@ -24,7 +25,10 @@ import { ListBankAccountsResponse } from "./dto/list-accounts-response.dto";
 @ApiBearerAuth()
 @Controller("accounts")
 export class AccountController {
-  constructor(private readonly accountService: AccountService) {}
+  constructor(
+    private readonly accountService: AccountService,
+    private readonly accountMapper: AccountMapper,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: "Create a new bank account" })
@@ -42,7 +46,7 @@ export class AccountController {
   ): Promise<BankAccountResponse> {
     const account = await this.accountService.create(createAccountDto, user.internalId);
 
-    return BankAccountResponse.fromEntity(account);
+    return this.accountMapper.toResponseDto(account);
   }
 
   @Get()
@@ -53,7 +57,10 @@ export class AccountController {
   async findAll(@CurrentUser() user: AuthenticatedUser): Promise<ListBankAccountsResponse> {
     const accounts = await this.accountService.findAllUserAccounts(user.internalId);
 
-    return ListBankAccountsResponse.fromEntities(accounts);
+    const response = new ListBankAccountsResponse();
+    response.accounts = accounts.map(this.accountMapper.toResponseDto);
+
+    return response;
   }
 
   @Get(":accountNumber")
@@ -71,6 +78,6 @@ export class AccountController {
   ): Promise<BankAccountResponse> {
     const account = await this.accountService.getAccountIfOwned(accountNumber, user.internalId);
 
-    return BankAccountResponse.fromEntity(account);
+    return this.accountMapper.toResponseDto(account);
   }
 }

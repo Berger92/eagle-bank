@@ -1,5 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { User } from "@prisma/client";
 
 export class UserResponseAddress {
   @ApiProperty()
@@ -42,25 +41,4 @@ export class UserResponse {
 
   @ApiProperty({ example: "2025-07-14T20:34:40.153Z" })
   updatedTimestamp: string;
-
-  static fromEntity(user: User): UserResponse {
-    const dto = new UserResponse();
-
-    dto.id = user.externalId;
-    dto.name = user.name;
-    dto.phoneNumber = user.phoneNumber;
-    dto.email = user.email;
-    dto.createdTimestamp = user.createdAt.toISOString();
-    dto.updatedTimestamp = user.updatedAt.toISOString();
-    dto.address = {
-      line1: user.addressLine1,
-      line2: user.addressLine2 || undefined,
-      line3: user.addressLine3 || undefined,
-      town: user.town,
-      county: user.county,
-      postcode: user.postcode,
-    };
-
-    return dto;
-  }
 }

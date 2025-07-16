@@ -2,7 +2,7 @@ import * as crypto from "node:crypto";
 import { Injectable, NotFoundException } from "@nestjs/common";
 import { User } from "@prisma/client";
 import { PasswordService } from "@shared/services";
-import { CreateUserRequest, UserResponse } from "./dto";
+import { CreateUserRequest } from "./dto";
 import { UserRepository } from "./user.repository";
 import { UserMapper } from "./user.mapper";
 
@@ -14,12 +14,12 @@ export class UserService {
     private readonly passwordService: PasswordService,
   ) {}
 
-  async create(input: CreateUserRequest): Promise<UserResponse> {
+  async create(input: CreateUserRequest): Promise<User> {
     const uuid = crypto.randomUUID();
     const externalId = this.userMapper.formatExternalId(uuid);
     const hashedPassword = await this.passwordService.hash(input.password);
 
-    const user = await this.userRepository.create({
+    return this.userRepository.create({
       id: uuid,
       externalId,
       name: input.name,
@@ -34,18 +34,16 @@ export class UserService {
       phoneNumber: input.phoneNumber,
       email: input.email,
     });
-
-    return UserResponse.fromEntity(user);
   }
 
-  async findByExternalId(externalId: string): Promise<UserResponse> {
+  async findByExternalId(externalId: string): Promise<User> {
     const user = await this.userRepository.findByExternalId(externalId);
 
     if (!user) {
       throw new NotFoundException();
     }
 
-    return UserResponse.fromEntity(user);
+    return user;
   }
 
   findByUsername(username: string): Promise<User | null> {
