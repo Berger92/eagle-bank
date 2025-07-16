@@ -3,7 +3,7 @@ import { INestApplication } from "@nestjs/common";
 import { AccountType, CreateBankAccountRequest } from "@v1/modules/account";
 import { createUserAndLogin, createTestApp } from "../../utils";
 
-describe("POST /v1/accounts (Create Account)", () => {
+describe("POST /v1/accounts (Create Bank Account)", () => {
   let app: INestApplication;
   let accessToken: string;
 
@@ -16,45 +16,49 @@ describe("POST /v1/accounts (Create Account)", () => {
     await app.close();
   });
 
-  it("should create a new bank account when request is valid", async () => {
-    const body: CreateBankAccountRequest = {
-      name: "My Main Account",
-      accountType: AccountType.PERSONAL,
-    };
+  describe("Given an authenticated user", () => {
+    it("When the user submits a valid account creation request, Then the system creates a new bank account", async () => {
+      const body: CreateBankAccountRequest = {
+        name: "My Main Account",
+        accountType: AccountType.PERSONAL,
+      };
 
-    const res = await request(app.getHttpServer())
-      .post("/v1/accounts")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send(body)
-      .expect(201);
+      const res = await request(app.getHttpServer())
+        .post("/v1/accounts")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(body)
+        .expect(201);
 
-    expect(res.body).toHaveProperty("accountNumber");
-    expect(res.body.accountType).toBe(body.accountType);
-    expect(res.body.name).toBe(body.name);
-    expect(res.body.balance).toBe(0);
-    expect(res.body.currency).toBe("GBP");
+      expect(res.body).toHaveProperty("accountNumber");
+      expect(res.body.accountType).toBe(body.accountType);
+      expect(res.body.name).toBe(body.name);
+      expect(res.body.balance).toBe(0);
+      expect(res.body.currency).toBe("GBP");
+    });
+
+    it('When the user omits the "name" field, Then the system returns 400 Bad Request', async () => {
+      const body = { accountType: "personal" };
+
+      const res = await request(app.getHttpServer())
+        .post("/v1/accounts")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(body)
+        .expect(400);
+
+      expect(res.body.message).toEqual(
+        expect.arrayContaining([expect.stringContaining("name must be a string")]),
+      );
+    });
   });
 
-  it('should return 400 when "name" is missing', async () => {
-    const body = { accountType: "personal" };
+  describe("Given an unauthenticated user", () => {
+    it("When the user attempts to create a bank account, Then the system returns 401 Unauthorized", async () => {
+      const body: CreateBankAccountRequest = {
+        name: "Unauthorized",
+        accountType: AccountType.PERSONAL,
+      };
 
-    const res = await request(app.getHttpServer())
-      .post("/v1/accounts")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send(body)
-      .expect(400);
-
-    expect(res.body.message).toEqual(
-      expect.arrayContaining([expect.stringContaining("name must be a string")]),
-    );
-  });
-
-  it("should return 401 when user is unauthenticated", async () => {
-    const body: CreateBankAccountRequest = {
-      name: "Unauthorized",
-      accountType: AccountType.PERSONAL,
-    };
-
-    await request(app.getHttpServer()).post("/v1/accounts").send(body).expect(401);
+      await request(app.getHttpServer()).post("/v1/accounts").send(body).expect(401);
+    });
   });
 });

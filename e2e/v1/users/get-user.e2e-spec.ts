@@ -3,7 +3,7 @@ import { INestApplication } from "@nestjs/common";
 import { createTestApp } from "../../utils";
 import { makeUserDto } from "../../factories/user.factory";
 
-describe("Fetch a user", () => {
+describe("GET /v1/users/{userId} (Fetch User)", () => {
   let app: INestApplication;
 
   beforeAll(async () => {
@@ -14,8 +14,8 @@ describe("Fetch a user", () => {
     await app.close();
   });
 
-  describe("Scenario: User wants to fetch their user details", () => {
-    it("Given a user is authenticated, When they request their own userId, Then the system returns the user details", async () => {
+  describe("Given a user is authenticated", () => {
+    it("When the user requests their own user details, Then the system returns their user data", async () => {
       const userDto = makeUserDto();
 
       const createRes = await request(app.getHttpServer()).post("/v1/users").send(userDto);
@@ -35,10 +35,8 @@ describe("Fetch a user", () => {
       expect(res.body).toHaveProperty("id", createRes.body.id);
       expect(res.body.email).toBe(userDto.email);
     });
-  });
 
-  describe("Scenario: User wants to fetch the user details of another user", () => {
-    it("Given a user is authenticated, When they request another user's userId, Then the system returns 403 Forbidden", async () => {
+    it("When the user requests another user's details, Then the system returns 403 Forbidden", async () => {
       const userA = makeUserDto();
       const userB = makeUserDto();
 
@@ -56,8 +54,8 @@ describe("Fetch a user", () => {
     });
   });
 
-  describe("Scenario: Request without authentication", () => {
-    it("Given no authentication header, When the user requests their details, Then the system returns 401 Unauthorized", async () => {
+  describe("Given no authentication header", () => {
+    it("When the user requests their user details, Then the system returns 401 Unauthorized", async () => {
       await request(app.getHttpServer()).get("/v1/users/usr-unauthorized").expect(401);
     });
   });

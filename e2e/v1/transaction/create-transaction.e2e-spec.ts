@@ -36,13 +36,51 @@ describe("POST /v1/accounts/{accountNumber}/transactions (Create Transaction)", 
         .expect(201);
 
       expect(res.body).toHaveProperty("id");
+      expect(res.body.id).toMatch(/^tan-/);
+      expect(res.body.userId).toMatch(/^usr-/);
       expect(res.body.amount).toBe(payload.amount);
       expect(res.body.currency).toBe(payload.currency);
       expect(res.body.type).toBe(payload.type);
     });
+
+    it("Then the account balance should reflect the deposit", async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/v1/accounts/${accountNumber}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(res.body.balance).toBe(100.0);
+    });
   });
 
   describe("Given a user wants to withdraw money with insufficient funds", () => {
+    it("When the user withdraws within balance, Then it should succeed", async () => {
+      const payload: CreateTransactionRequest = {
+        type: TransactionType.WITHDRAWAL,
+        amount: 40.0,
+        currency: Currency.GBP,
+        reference: "Normal withdrawal",
+      };
+
+      const res = await request(app.getHttpServer())
+        .post(`/v1/accounts/${accountNumber}/transactions`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(payload)
+        .expect(201);
+
+      expect(res.body.type).toBe(TransactionType.WITHDRAWAL);
+      expect(res.body.amount).toBe(40);
+    });
+
+    it("Then the account balance should reflect the withdrawal", async () => {
+      const res = await request(app.getHttpServer())
+        .get(`/v1/accounts/${accountNumber}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(200);
+
+      expect(res.body.balance).toBe(60);
+    });
+
     it("When the withdrawal exceeds balance, Then the system returns Unprocessable Entity", async () => {
       const payload: CreateTransactionRequest = {
         type: TransactionType.WITHDRAWAL,
